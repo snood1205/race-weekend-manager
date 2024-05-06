@@ -2,16 +2,28 @@
 
 class Car < ApplicationRecord
   has_many :personnel, dependent: :nullify
-  has_many :tires, dependent: :destroy
-  validates :number, :make, :model, :year, presence: true
+  has_many :tires, dependent: :destroy, autosave: true
+  validates :number, presence: true
+  validate :validate_tires_on_car
+
+  private
+
+  def basic_tire_validation
+    tires_on_car = tires.reload.select(&:on_car?)
+    return false unless tires_on_car.count.positive?
+
+    if tires_on_car.count == 4
+      true
+    else
+      errors.add(:tires, 'cannot be in a quantity other than 4') && false
+    end
+  end
 
   def validate_tires_on_car
-    return unless tires.count.positive?
+    return unless basic_tire_validation
 
-    errors.add(:tires, 'cannot be in a quantity other than 4') unless tires.count == 4
-
-    tire_positions = tires.positions
-    duplicates = tire_positions.select { |e| tire_positions.count(e) > 1 }
+    tire_positions = tires.select(&:on_car?).positions
+    duplicates = tire_positions.select { |position| tire_positions.count(position) > 1 }
     unique_position_duplicates = %i[left_front left_rear right_front right_rear] & duplicates
 
     if unique_position_duplicates
