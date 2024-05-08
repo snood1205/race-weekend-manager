@@ -23,4 +23,3 @@ class CarTest < ActiveSupport::TestCase
     assert_equal ['cannot be in a quantity other than 4'], car.errors.messages[:tires]
   end
 end
-
