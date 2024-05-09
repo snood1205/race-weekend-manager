@@ -3,3 +3,7 @@ AllCops:
 
 require:
   - rubocop-rails
+
+Style/Documentation:
+  Exclude:
+    - 'db/migrate/*.rb'

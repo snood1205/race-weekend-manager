@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_06_161515) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_08_174841) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,6 +21,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_161515) do
     t.integer "year"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "team_id", null: false
+    t.index ["team_id"], name: "index_cars_on_team_id"
   end
 
   create_table "personnel", force: :cascade do |t|
@@ -29,7 +31,32 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_161515) do
     t.bigint "car_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "team_id", null: false
     t.index ["car_id"], name: "index_personnel_on_car_id"
+    t.index ["team_id"], name: "index_personnel_on_team_id"
+  end
+
+  create_table "team_administrators", force: :cascade do |t|
+    t.string "name"
+    t.string "email", null: false
+    t.string "password_digest"
+    t.string "token"
+    t.datetime "token_expires_at"
+    t.string "refresh_token"
+    t.datetime "refresh_token_expires_at"
+    t.bigint "team_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_team_administrators_on_email"
+    t.index ["refresh_token"], name: "index_team_administrators_on_refresh_token", unique: true
+    t.index ["team_id"], name: "index_team_administrators_on_team_id"
+    t.index ["token"], name: "index_team_administrators_on_token", unique: true
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "tires", force: :cascade do |t|
@@ -45,6 +72,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_06_161515) do
     t.index ["car_id"], name: "index_tires_on_car_id"
   end
 
+  add_foreign_key "cars", "teams"
   add_foreign_key "personnel", "cars"
+  add_foreign_key "personnel", "teams"
+  add_foreign_key "team_administrators", "teams"
   add_foreign_key "tires", "cars"
 end

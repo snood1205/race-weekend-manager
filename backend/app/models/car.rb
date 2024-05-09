@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 class Car < ApplicationRecord
-  has_many :personnel, dependent: :nullify
+  has_many :personnel, dependent: :destroy
   has_many :tires, dependent: :destroy, autosave: true
-  validates :number, presence: true
+
   validate :validate_tires_on_car
+  validates :number, presence: true
 
   private
 
